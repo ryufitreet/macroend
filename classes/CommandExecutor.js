@@ -21,6 +21,9 @@ class CommandExecutor {
     sync: (params) => this.commandRunner.syncModules(params),
     wpstart: (params) => this.commandRunner.webpackStart(params),
     wprestart: (params) => this.commandRunner.webpackRestart(params),
+    // Переключает соответствующие проекты на определенные ветки
+    // Берется из настроек
+    sp: (params) => this.commandRunner.switchProject(params),
     help: () => this.commandRunner.help(),
     clearnodejs: () => this.commandRunner.clearNodeJs()
   }

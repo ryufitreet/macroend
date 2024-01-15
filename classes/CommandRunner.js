@@ -5,7 +5,7 @@ import {
   collectLogGitStatsSimpleString,
   getGitStats,
   getMaxLengthBrahcnAndName,
-  gitToDefaultBranch,
+  gitToBranch,
   gitUntrackedFilesFromRaw,
   pull,
 } from "../utils/git.js";
@@ -95,7 +95,7 @@ class CommandRunner {
     if (collectToDev.length > 0) {
       for (const c of collectToDev) {
         const { module } = c;
-        gitToDefaultBranch(module.path);
+        gitToBranch(module.path, SETTINGS.DEFAULT_BRANCH);
       }
     }
 
@@ -210,7 +210,6 @@ class CommandRunner {
     }
 
     const restartModule = (m) => {
-      log(`Kill ${m.name}`)
       exec(`taskkill /F /T /PID ${m.webpackPid}`, null, () => {
         m.setWebpackServerStatus(null)
         this.webpackStart({'-m': [m.name]})
@@ -227,13 +226,37 @@ class CommandRunner {
           return it.name === m
         })
         if (module != null) {
-          restartModule(m)
+          restartModule(module)
         } else {
           log(chalk.red(`${m} не запущен`))
         }
       }
     }
 
+  }
+
+  switchProject = async (params) => {
+    if (!Array.isArray(params['-p'])) {
+      log('Введите название проекта через -p')
+    }
+    const proj = params['-p'][0]
+    if (proj != null) {
+      const hasInSettings = Object.keys(SETTINGS.PROJECTS).find((it) => {
+        return it === proj
+      })
+      if (!hasInSettings) {
+        log('Проект не найден')
+        return
+      }
+      for (let rule of SETTINGS.PROJECTS[proj]) {
+        const { branch, modules } = rule
+        const modulesObj = await this.appState.findModulesByNames(modules)
+        for (const m of modulesObj) {
+          gitToBranch(m.path, branch)
+        }
+      }
+      endOfCommandOutput()
+    }
   }
 
   /* Удаляет все нодовские процессы. Осторожно.
@@ -248,7 +271,6 @@ class CommandRunner {
   }
 
   help = () => {
-    log('TODO')
     log('m - системный список модулей')
     log('mgs - данные по всем модулям')
     log('wb - на рабочую ветку')

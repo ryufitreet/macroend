@@ -28,8 +28,8 @@ export const gitUntrackedFilesFromRaw = (string) => {
   });
 };
 
-export const gitToDefaultBranch = (path) => {
-  runCommandSync(`cd ${path} && git switch ${SETTINGS.DEFAULT_BRANCH}`, { stdio : 'pipe' });
+export const gitToBranch = (path, branchTo) => {
+  runCommandSync(`cd ${path} && git switch ${branchTo}`, { stdio : 'pipe' });
   const filesInWork = runCommandSync(`cd ${path} && git status -s`);
   const branch = (runCommandSync(`cd ${path} && git branch --show-current`) ?? "").trim();
   return { branch, filesInWork };
