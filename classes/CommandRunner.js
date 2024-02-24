@@ -241,14 +241,14 @@ class CommandRunner {
     }
     const proj = params['-p'][0]
     if (proj != null) {
-      const hasInSettings = Object.keys(SETTINGS.PROJECTS).find((it) => {
+      const hasInSettings = Object.keys(SETTINGS.PROJECTS_TO_SWITCH).find((it) => {
         return it === proj
       })
       if (!hasInSettings) {
         log('Проект не найден')
         return
       }
-      for (let rule of SETTINGS.PROJECTS[proj]) {
+      for (let rule of SETTINGS.PROJECTS_TO_SWITCH[proj]) {
         const { branch, modules } = rule
         const modulesObj = await this.appState.findModulesByNames(modules)
         for (const m of modulesObj) {
@@ -282,6 +282,7 @@ class CommandRunner {
     log('wps - стартует вебпак')
     log('    -m #модуль1# #модуль2# - стартует массив модулей')
     log('    -g #группамодулей# - стартует группу модулей описанную в settings.js')
+    log('sp (switch project) - переключает несколько модулей на опр. в настройках ветки')
   }
 }
 
